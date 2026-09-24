@@ -1,0 +1,300 @@
+{
+	"name": "pl_ingest_weather_bronze",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy_WeatherAPI_to_Bronze",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set_Bronze_File_Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_rest_weatherapi",
+						"type": "DatasetReference",
+						"parameters": {
+							"api_key": {
+								"value": "@pipeline().parameters.weather_api_key",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_weather_bronze",
+						"type": "DatasetReference",
+						"parameters": {
+							"file_name": {
+								"value": "@variables('bronze_file_name')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set_Bronze_File_Name",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "bronze_file_name",
+					"value": {
+						"value": "@concat(\n    'weather_',\n    formatDateTime(utcNow(),'yyyyMMdd_HHmmss'),\n    '.json'\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Run_Databricks_Job",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Copy_WeatherAPI_to_Bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "\tapplication/json",
+						"Authorization": {
+							"value": "@concat('Bearer ', pipeline().parameters.databricks_pat)",
+							"type": "Expression"
+						}
+					},
+					"url": {
+						"value": "https://dbc-ffab9e1e-aa5d.cloud.databricks.com//api/2.2/jobs/run-now",
+						"type": "Expression"
+					},
+					"body": {
+						"value": "@concat(\n    '{',\n    '\"job_id\":251241483819066,',\n    '\"job_parameters\":{',\n        '\"file_name\":\"', variables('bronze_file_name'), '\",',\n        '\"sas_token\":\"', pipeline().parameters.sas_token, '\"',\n    '}',\n    '}'\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Wait_For_Databricks",
+				"type": "Until",
+				"dependsOn": [
+					{
+						"activity": "Run_Databricks_Job",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@or(\n    equals(variables('dbx_lifecycle_state'), 'TERMINATED'),\n    or(\n        equals(variables('dbx_lifecycle_state'), 'INTERNAL_ERROR'),\n        equals(variables('dbx_lifecycle_state'), 'SKIPPED')\n    ) \n    \n)",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait_10_seconds",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 10
+							}
+						},
+						{
+							"name": "Check_Databricks_Run_Status",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Wait_10_seconds",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "GET",
+								"headers": {
+									"Content-Type": "application/json",
+									"Authorization": {
+										"value": "@concat(\n    'Bearer ',\n    pipeline().parameters.databricks_pat\n)",
+										"type": "Expression"
+									}
+								},
+								"url": {
+									"value": "@concat(\n    'https://dbc-ffab9e1e-aa5d.cloud.databricks.com/api/2.2/jobs/runs/get?run_id=',\n    string(activity('Run_Databricks_Job').output.run_id)\n)",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set_Databricks_State",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Check_Databricks_Run_Status",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "dbx_lifecycle_state",
+								"value": {
+									"value": "@activity('Check_Databricks_Run_Status').output.state.life_cycle_state",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set_Databricks_Result",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Set_Databricks_State",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "dbx_result_state",
+								"value": {
+									"value": "@coalesce(\n    activity('Check_Databricks_Run_Status').output.state.result_state,\n    ''\n)",
+									"type": "Expression"
+								}
+							}
+						}
+					],
+					"timeout": "0.00:10:00"
+				}
+			},
+			{
+				"name": "Check_Databricks_Result",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Wait_For_Databricks",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(\r\n    variables('dbx_result_state'),\r\n    'SUCCESS'\r\n)",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Fail_Databricks_Job",
+							"type": "Fail",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"message": {
+									"value": "@concat(\n    'Databricks job failed. Lifecycle state: ',\n    variables('dbx_lifecycle_state'),\n    ', result state: ',\n    variables('dbx_result_state')\n)",
+									"type": "Expression"
+								},
+								"errorCode": "DATABRICKS_JOB_FAILED"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"weather_api_key": {
+				"type": "string"
+			},
+			"databricks_pat": {
+				"type": "string"
+			},
+			"sas_token": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"bronze_file_name": {
+				"type": "String"
+			},
+			"dbx_lifecycle_state": {
+				"type": "String",
+				"defaultValue": "PENDING"
+			},
+			"dbx_result_state": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-09-24T22:50:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

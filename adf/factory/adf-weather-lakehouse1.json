@@ -1,0 +1,15 @@
+{
+	"name": "adf-weather-lakehouse1",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "northeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "c501ce98-0700-4151-a894-1067900b3d37",
+		"tenantId": "de1aa9b5-823f-4ac1-b8d2-2855a0df7b22"
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"name": "ds_rest_weatherapi",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_rest_meteo",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"api_key": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@concat(\n    'v1/forecast.json?key=',\n    dataset().api_key,\n    '&q=Naples&days=1'\n)",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
