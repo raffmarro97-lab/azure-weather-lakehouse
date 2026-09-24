@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-weather-lakehouse1"
+		},
+		"ls_adls_weather_servicePrincipalCredential": {
+			"value": ""
+		},
+		"ls_adls_weather_properties_typeProperties_url": {
+			"value": "https://stweatherlakehouse1.dfs.core.windows.net/"
+		},
+		"ls_adls_weather_properties_typeProperties_tenant": {
+			"value": "de1aa9b5-823f-4ac1-b8d2-2855a0df7b22"
+		},
+		"ls_adls_weather_properties_typeProperties_servicePrincipalId": {
+			"value": "77f3728b-54e4-4996-a1b3-03ef7001b439"
+		},
+		"ls_rest_meteo_properties_typeProperties_url": {
+			"value": "https://api.weatherapi.com/"
+		}
+	}
+}
