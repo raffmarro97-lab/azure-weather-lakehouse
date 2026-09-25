@@ -1,0 +1,12 @@
+{
+	"name": "adf-weather-lakehouse-dev",
+	"properties": {
+		"globalParameters": {
+			"environment_name": {
+				"type": "string",
+				"value": "dev"
+			}
+		}
+	},
+	"location": "northeurope"
+}
