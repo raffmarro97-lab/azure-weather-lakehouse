@@ -18,7 +18,10 @@ jobs:
         with:
           ref: adf_publish
           path: adf_publish
-
+      
+      - name: Show files from adf_publish
+        run: find ./adf_publish -maxdepth 3 -type f | sort
+      
       - name: Login to Azure with OIDC
         uses: azure/login@v3
         with:
