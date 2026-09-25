@@ -1,1 +1,10 @@
-{}
+{
+	"environment_name": {
+		"type": "string",
+		"value": "dev"
+	},
+	"databricks_job_id": {
+		"type": "string",
+		"value": "251241483819066"
+	}
+}
