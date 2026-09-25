@@ -26,6 +26,14 @@
 		"ls_rest_meteo_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://api.weatherapi.com/"
+		},
+		"default_properties_environment_name_value": {
+			"type": "string",
+			"defaultValue": "dev"
+		},
+		"default_properties_databricks_job_id_value": {
+			"type": "string",
+			"defaultValue": "251241483819066"
 		}
 	},
 	"variables": {
@@ -432,6 +440,22 @@
 					"url": "[parameters('ls_rest_meteo_properties_typeProperties_url')]",
 					"enableServerCertificateValidation": true,
 					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/default')]",
+			"type": "Microsoft.DataFactory/factories/globalparameters",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"environment_name": {
+					"type": "string",
+					"value": "[parameters('default_properties_environment_name_value')]"
+				},
+				"databricks_job_id": {
+					"type": "string",
+					"value": "[parameters('default_properties_databricks_job_id_value')]"
 				}
 			},
 			"dependsOn": []

@@ -27,6 +27,14 @@
 			"type": "string",
 			"defaultValue": "https://api.weatherapi.com/"
 		},
+		"default_properties_environment_name_value": {
+			"type": "string",
+			"defaultValue": "dev"
+		},
+		"default_properties_databricks_job_id_value": {
+			"type": "string",
+			"defaultValue": "251241483819066"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -56,6 +64,12 @@
 					},
 					"ls_adls_weather_servicePrincipalCredential": {
 						"value": "[parameters('ls_adls_weather_servicePrincipalCredential')]"
+					},
+					"default_properties_environment_name_value": {
+						"value": "[parameters('default_properties_environment_name_value')]"
+					},
+					"default_properties_databricks_job_id_value": {
+						"value": "[parameters('default_properties_databricks_job_id_value')]"
 					},
 					"ls_adls_weather_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls_weather_properties_typeProperties_url')]"

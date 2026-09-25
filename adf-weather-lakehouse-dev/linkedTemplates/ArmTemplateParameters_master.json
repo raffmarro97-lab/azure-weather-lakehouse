@@ -20,6 +20,12 @@
 		"ls_rest_meteo_properties_typeProperties_url": {
 			"value": "https://api.weatherapi.com/"
 		},
+		"default_properties_environment_name_value": {
+			"value": "dev"
+		},
+		"default_properties_databricks_job_id_value": {
+			"value": "251241483819066"
+		},
 		"containerUri": {
 			"value": ""
 		},
