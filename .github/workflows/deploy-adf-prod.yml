@@ -1,0 +1,48 @@
+name: Deploy ADF to PROD
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - name: Checkout adf_publish branch
+        uses: actions/checkout@v4
+        with:
+          ref: adf_publish
+          path: adf_publish
+
+      - name: Show files from adf_publish
+        run: find ./adf_publish -maxdepth 3 -type f | sort
+
+      - name: Login to Azure with OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy ADF to PROD
+        uses: azure/arm-deploy@v2
+        with:
+          subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: ${{ vars.ADF_RESOURCE_GROUP }}
+          template: ./adf_publish/adf-weather-lakehouse-dev/ARMTemplateForFactory.json
+          parameters: >
+            factoryName=${{ vars.ADF_FACTORY_NAME }}
+            ls_adls_weather_servicePrincipalCredential=${{ secrets.ADLS_SP_CLIENT_SECRET }}
+            ls_adls_weather_properties_typeProperties_url=${{ vars.ADLS_URL }}
+            ls_adls_weather_properties_typeProperties_tenant=${{ vars.AZURE_TENANT_ID }}
+            ls_adls_weather_properties_typeProperties_servicePrincipalId=${{ vars.ADLS_SP_CLIENT_ID }}
+            ls_rest_meteo_properties_typeProperties_url=${{ vars.WEATHER_API_BASE_URL }}
+            default_properties_environment_name_value=${{ vars.ADF_ENVIRONMENT_NAME }}
+            default_properties_databricks_job_id_value=${{ vars.DATABRICKS_JOB_ID }}
+          deploymentMode: Incremental
+          deploymentName: adf-weather-lakehouse-prod-deploy
