@@ -31,7 +31,7 @@ jobs:
         with:
           subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ vars.ADF_RESOURCE_GROUP }}
-          template: ./adf_publish/ARMTemplateForFactory.json
+          template: ./adf_publish/adf-weather-lakehouse-dev/ARMTemplateForFactory.json
           parameters: >
             factoryName=${{ vars.ADF_FACTORY_NAME }}
             ls_adls_weather_servicePrincipalCredential=${{ secrets.ADLS_SP_CLIENT_SECRET }}
