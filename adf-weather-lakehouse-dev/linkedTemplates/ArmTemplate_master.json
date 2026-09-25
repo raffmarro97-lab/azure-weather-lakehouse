@@ -1,0 +1,77 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-weather-lakehouse-dev"
+		},
+		"ls_adls_weather_servicePrincipalCredential": {
+			"type": "secureString",
+			"metadata": "Secure string for 'servicePrincipalCredential' of 'ls_adls_weather'"
+		},
+		"ls_adls_weather_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stweatherlakehouse1.dfs.core.windows.net/"
+		},
+		"ls_adls_weather_properties_typeProperties_tenant": {
+			"type": "string",
+			"defaultValue": "de1aa9b5-823f-4ac1-b8d2-2855a0df7b22"
+		},
+		"ls_adls_weather_properties_typeProperties_servicePrincipalId": {
+			"type": "string",
+			"defaultValue": "77f3728b-54e4-4996-a1b3-03ef7001b439"
+		},
+		"ls_rest_meteo_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.weatherapi.com/"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adf-weather-lakehouse-dev_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"ls_adls_weather_servicePrincipalCredential": {
+						"value": "[parameters('ls_adls_weather_servicePrincipalCredential')]"
+					},
+					"ls_adls_weather_properties_typeProperties_url": {
+						"value": "[parameters('ls_adls_weather_properties_typeProperties_url')]"
+					},
+					"ls_adls_weather_properties_typeProperties_tenant": {
+						"value": "[parameters('ls_adls_weather_properties_typeProperties_tenant')]"
+					},
+					"ls_adls_weather_properties_typeProperties_servicePrincipalId": {
+						"value": "[parameters('ls_adls_weather_properties_typeProperties_servicePrincipalId')]"
+					},
+					"ls_rest_meteo_properties_typeProperties_url": {
+						"value": "[parameters('ls_rest_meteo_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
