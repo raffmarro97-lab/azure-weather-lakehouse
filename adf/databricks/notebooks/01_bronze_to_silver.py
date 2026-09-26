@@ -1,7 +1,7 @@
 # Databricks notebook source
 dbutils.widgets.text("file_name", "")
 dbutils.widgets.text("sas_token", "")
-dbutils.widgets.text("environment", "dev")
+dbutils.widgets.text("environment", "")
 dbutils.widgets.text("storage_account", "")
 
 storage_account = dbutils.widgets.get("storage_account")
