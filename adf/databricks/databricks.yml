@@ -1,16 +1,35 @@
 bundle:
-  name: wwather-lakehouse
+  name: weather-lakehouse
 
 include:
   - resources/*.yml
 
+variables:
+  job_name:
+    default: job_weather_dev
+
+  environment_name:
+    default: dev
+
+  storage_account:
+    default: stweatherlakehouse1
+
 targets:
   dev:
-    mode: development
     default: true
-  
-  test:
-    mode: test
+    variables:
+      job_name: job_weather_dev
+      environment_name: dev
+      storage_account: stweatherlakehouse1
 
-  prod: 
-    mode: prod
+  test:
+    variables:
+      job_name: job_weather_test
+      environment_name: test
+      storage_account: stweatherlakehousetest1
+
+  prod:
+    variables:
+      job_name: job_weather_prod
+      environment_name: prod
+      storage_account: stweatherlakehouseprod1
