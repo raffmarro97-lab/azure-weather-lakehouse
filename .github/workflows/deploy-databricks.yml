@@ -1,5 +1,5 @@
 name: Deploy Databricks Bundle
-  
+
 on:
   workflow_dispatch:
 
@@ -8,6 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
 
+    env:
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -15,23 +19,22 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
+      - name: Validate DEV bundle
+        working-directory: adf/databricks
+        run: databricks bundle validate -t dev
+
       - name: Deploy DEV bundle
         working-directory: adf/databricks
-        env:
-          DATABRICKS HOST: https://dbc-ffab9e1e-aa5d.cloud.databricks.com
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle deploy -t dev
-      - name: Deploy DEV bundle
-        working-directory: adf/databricks
-        env:
-          DATABRICKS HOST: https://dbc-ffab9e1e-aa5d.cloud.databricks.com
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: databricks bundle deploy -t dev
 
   deploy-test:
     needs: deploy-dev
     runs-on: ubuntu-latest
     environment: test
+
+    env:
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -42,22 +45,20 @@ jobs:
 
       - name: Validate TEST bundle
         working-directory: adf/databricks
-        env:
-          DATABRICKS HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: databricks bundle validate -t test
 
       - name: Deploy TEST bundle
         working-directory: adf/databricks
-        env:
-          DATABRICKS HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: databricks bundle deploy -t test
 
   deploy-prod:
     needs: deploy-test
     runs-on: ubuntu-latest
     environment: prod
+
+    env:
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -68,14 +69,8 @@ jobs:
 
       - name: Validate PROD bundle
         working-directory: adf/databricks
-        env:
-          DATABRICKS HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: databricks bundle validate -t prod
 
       - name: Deploy PROD bundle
         working-directory: adf/databricks
-        env:
-          DATABRICKS HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: databricks bundle deploy -t prod
