@@ -1,0 +1,16 @@
+bundle:
+  name: wwather-lakehouse
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+  
+  test:
+    mode: test
+
+  prod: 
+    mode: prod
