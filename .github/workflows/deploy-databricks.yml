@@ -15,12 +15,12 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Validate DEV bundle
+      - name: Deploy DEV bundle
         working-directory: adf/databricks
         env:
-          DATABRICKS HOST: ${{ vars.DATABRICKS_HOST }}
+          DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle validate -t dev
+        run: databricks bundle deploy -t dev
       - name: Deploy DEV bundle
         working-directory: adf/databricks
         env:
