@@ -1,0 +1,36 @@
+resources:
+  jobs:
+    job_weather_dev:
+      name: ${var.job_name}
+
+      tasks:
+        - task_key: 01_bronze_to_silver
+          notebook_task:
+            notebook_path: ../notebooks/01_bronze_to_silver.py
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+
+      parameters:
+        - name: file_name
+          default: ""
+
+        - name: sas_token
+          default: ""
+
+        - name: environment
+          default: ${var.environment_name}
+
+        - name: storage_account
+          default: ${var.storage_account}
+
+      email_notifications:
+        on_failure:
+          - raffmarro97@gmail.com
+
+      max_concurrent_runs: 1
+
+      queue:
+        enabled: true
+
+      timeout_seconds: 0
