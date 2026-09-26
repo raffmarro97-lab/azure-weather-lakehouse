@@ -20,11 +20,11 @@ jobs:
         uses: databricks/setup-cli@main
 
       - name: Validate DEV bundle
-        working-directory: adf/databricks
+        working-directory: databricks
         run: databricks bundle validate -t dev
 
       - name: Deploy DEV bundle
-        working-directory: adf/databricks
+        working-directory: databricks
         run: databricks bundle deploy -t dev
 
   deploy-test:
@@ -44,11 +44,11 @@ jobs:
         uses: databricks/setup-cli@main
 
       - name: Validate TEST bundle
-        working-directory: adf/databricks
+        working-directory: databricks
         run: databricks bundle validate -t test
 
       - name: Deploy TEST bundle
-        working-directory: adf/databricks
+        working-directory: databricks
         run: databricks bundle deploy -t test
 
   deploy-prod:
@@ -68,7 +68,7 @@ jobs:
         uses: databricks/setup-cli@main
 
       - name: Validate PROD bundle
-        working-directory: adf/databricks
+        working-directory: databricks
         run: databricks bundle validate -t prod
 
       - name: Deploy PROD bundle
