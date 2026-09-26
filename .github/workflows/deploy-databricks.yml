@@ -72,5 +72,5 @@ jobs:
         run: databricks bundle validate -t prod
 
       - name: Deploy PROD bundle
-        working-directory: adf/databricks
+        working-directory: databricks
         run: databricks bundle deploy -t prod
