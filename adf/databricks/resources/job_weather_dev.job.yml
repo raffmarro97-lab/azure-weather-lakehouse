@@ -24,10 +24,6 @@ resources:
         - name: storage_account
           default: ${var.storage_account}
 
-      email_notifications:
-        on_failure:
-          - raffmarro97@gmail.com
-
       max_concurrent_runs: 1
 
       queue:
