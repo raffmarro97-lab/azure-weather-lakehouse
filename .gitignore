@@ -1,0 +1,6 @@
+gitleaks-report.json
+gitleaks*.json
+.env
+.env.*
+!.env.example
+.databrickscfg
